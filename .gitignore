@@ -47,3 +47,10 @@ venv.bak/
 
 # local testing files
 test/
+
+# baseline models
+baselines/
+
+# outputs from running scripts
+.out
+.err
