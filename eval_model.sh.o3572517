@@ -1,7 +1,0 @@
-]P02d2d2d]P1f2777a]P299cc99]P3ffcc66]P46699cc]P5cc99cc]P666cccc]P7d3d0c8]P8747369]P9f2777a]Pa99cc99]Pbffcc66]Pc6699cc]Pdcc99cc]Pe66cccc]Pff2f0ecactivate does not accept more than one argument:
-['baselines/babyLM_100M/roberta_s1/', 'encoder only', 'glue', '16']
-
-usage: babylm_eval.py [-h] [--tasks {blimp,glue,all}]
-                      [--num_fewshot NUM_FEWSHOT]
-                      model_path {decoder only,encoder only,encoder-decoder}
-babylm_eval.py: error: argument model_type: invalid choice: 'encoder' (choose from 'decoder only', 'encoder only', 'encoder-decoder')
