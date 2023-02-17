@@ -11,6 +11,8 @@ grammars.
 Homepage: https://github.com/alexwarstadt/blimp
 """
 from lm_eval.api.task import PromptSourceTask
+from typing import Optional
+from datasets import load_dataset
 
 
 _CITATION = """
@@ -31,7 +33,6 @@ _CITATION = """
 
 
 class BlimpTask(PromptSourceTask):
-
     DATASET_PATH = "blimp"
 
     def has_training_docs(self):
@@ -316,3 +317,6 @@ class BlimpWhVsThatWithGap(BlimpTask):
 
 class BlimpWhVsThatWithGapLongDistance(BlimpTask):
     DATASET_NAME = "wh_vs_that_with_gap_long_distance"
+
+class BlimpFromFile(BlimpTask):
+    DATASET_NAME = "causative"

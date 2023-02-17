@@ -2,6 +2,7 @@ import abc
 import logging
 import re
 import datasets
+import os
 import numpy as np
 import promptsource.templates
 from abc import abstractmethod
@@ -46,6 +47,7 @@ class Task(abc.ABC):
         data_dir: Optional[str] = None,
         cache_dir: Optional[str] = None,
         download_mode: Optional[str] = None,
+        file_path: Optional[str] = None,
     ):
         """
         Args:
@@ -71,7 +73,11 @@ class Task(abc.ABC):
                 - `datasets.DownloadMode.FORCE_REDOWNLOAD`
                     Fresh download and fresh dataset.
         """
-        self.download(data_dir, cache_dir, download_mode)
+        if file_path:
+            self.load_from_file(file_path, cache_dir,
+                                download_mode=datasets.DownloadMode.FORCE_REDOWNLOAD)
+        else:
+            self.download(data_dir, cache_dir, download_mode)
         self._training_docs = None
         self._fewshot_docs = None
 
@@ -89,6 +95,31 @@ class Task(abc.ABC):
             path=self.DATASET_PATH,
             name=self.DATASET_NAME,
             data_dir=data_dir,
+            cache_dir=cache_dir,
+            download_mode=download_mode,
+        )
+
+    def load_from_file(
+        self,
+        file_path,
+        cache_dir: Optional[str] = None,
+        download_mode: Optional[str] = None,
+    ):
+        # get split names
+        splits = {}
+        dirname = os.path.dirname(file_path)
+        for filename in os.listdir(dirname):
+            if not filename.startswith(os.path.basename(file_path)):
+                continue
+            if filename.count(".") == 2:
+                splitname = filename.split(".")[1]
+                splits[splitname] = os.path.join(dirname, filename)
+            else:
+                splits["train"] = os.path.join(dirname, filename)
+
+        self.dataset = datasets.load_dataset(
+            "json",
+            data_files=splits,
             cache_dir=cache_dir,
             download_mode=download_mode,
         )
@@ -229,6 +260,7 @@ class PromptSourceTask(Task):
         example_separator: Optional[str] = "\n###\n",
         text_target_separator: Optional[str] = " ",
         save_examples: Optional[bool] = True,
+        file_path: Optional[str] = None,
     ):
         """
         Args:
@@ -262,7 +294,11 @@ class PromptSourceTask(Task):
             text_target_separator.isspace()
         ), f"`text_target_separator` must be whitespace only. Got: `{text_target_separator}`"
 
-        super().__init__(data_dir, cache_dir, download_mode)
+        if file_path:
+            super().__init__(cache_dir=cache_dir, file_path=file_path,
+                             download_mode=download_mode)
+        else:
+            super().__init__(data_dir, cache_dir, download_mode)
         self.prompt_template = prompt_template
         self.save_examples = save_examples
         self.example_separator = example_separator
@@ -303,12 +339,26 @@ class PromptSourceTask(Task):
             return self.test_docs()
 
     def doc_to_text(self, doc: dict) -> str:
+        """Returns the input string for a particular example, given the hf dict."""
+        if self.prompt_template is None:
+            return self.null_prompt_doc_to_text(doc)
+        # is just a string
         text, _ = self.prompt_template.apply(doc)
         return text
 
+    def null_prompt_doc_to_text(self, doc: dict) -> str:
+        return NotImplementedError("Override this method in your task!")
+
     def doc_to_target(self, doc: dict) -> List[str]:
+        """Returns the target string for a particular example, given the hf dict."""
+        if self.prompt_template is None:
+            return self.null_prompt_doc_to_target(doc)
+        # is a list of strings where it usually only has one element: the correct answer
         _, target = self.prompt_template.apply(doc)
         return target
+
+    def null_prompt_doc_to_target(self, doc: dict) -> List[str]:
+        return NotImplementedError("Override this method in your task!")
 
     def doc_to_rawtext(self, doc: dict) -> str:
         """This should be used for selecting the raw text of the document.
@@ -328,6 +378,9 @@ class PromptSourceTask(Task):
     def format_example(self, text: str, target: str, separator: str) -> str:
         """Returns the text and target combined by the specified `separator`"""
         return text + separator + target
+
+    def null_prompt_answer_choices(self, doc: dict) -> List[str]:
+        return NotImplementedError("Override this method in your task!")
 
     def fewshot_examples(
         self,
@@ -455,7 +508,10 @@ class PromptSourceTask(Task):
             An iterable of `Request` objects.
         """
         requests = []
-        answer_choices_list = self.prompt_template.get_answer_choices_list(doc)
+        if self.prompt_template is None:
+            answer_choices_list = self.null_prompt_answer_choices(doc)
+        else:
+            answer_choices_list = self.prompt_template.get_answer_choices_list(doc)
         if answer_choices_list:
             # If answer_choices_list, then this is a ranked choice prompt.
             for answer_choice in answer_choices_list:
@@ -494,19 +550,30 @@ class PromptSourceTask(Task):
         Returns:
             A dict of metric results.
         """
-        answer_choices_list = self.prompt_template.get_answer_choices_list(doc)
+        if self.prompt_template is None:
+            answer_choices_list = self.null_prompt_answer_choices(doc)
+        else:
+            answer_choices_list = self.prompt_template.get_answer_choices_list(doc)
         target = self.doc_to_target(doc)
         if answer_choices_list:
             # If answer_choices_list, then this is a ranked choice prompt.
             # NOTE: In the future, target could be a list of strings.
             assert isinstance(target, list) and len(target) == 1
             target = target[0].strip()
-            target_idx = answer_choices_list.index(target)
+            try:
+                target_idx = answer_choices_list.index(target)
+            except ValueError as e:
+                print("answer_choices_list:", answer_choices_list)
+                print("target:", target)
+                raise ValueError(e)
 
             pred = answer_choices_list[np.argmax(results)]
             out = {}
+            metric_list = ["Accuracy"]  # TODO: CLI framework for specifying metrics
 
-            for metric in self.prompt_template.metadata.metrics:
+            if self.prompt_template:
+                metric_list = self.prompt_template.metadata.metrics
+            for metric in metric_list:
                 if metric not in self.CONFIGURED_RANKED_CHOICE_PS_METRICS:
                     logger.warning(
                         f"Unexpected metric: `{metric}`. Add it, or use a task-specific solution."
@@ -561,7 +628,10 @@ class PromptSourceTask(Task):
 
     def aggregation(self) -> Mapping[str, Callable]:
         out = {}
-        for metric in self.prompt_template.metadata.metrics:
+        metric_list = ["Accuracy"]
+        if self.prompt_template:
+            metric_list = self.prompt_template.metadata.metrics
+        for metric in metric_list:
             if metric == "Accuracy":
                 out["acc"] = mean
                 out["acc_norm"] = mean
@@ -618,6 +688,8 @@ class PromptSourceTask(Task):
         return out
 
     def get_logging_info(self):
+        if self.prompt_template is None:
+            return self.null_prompt_get_logging_info()
         return {
             "fixed_answer_choice_list": self.prompt_template.get_fixed_answer_choices_list(),
             "dataset_path": self.DATASET_PATH,

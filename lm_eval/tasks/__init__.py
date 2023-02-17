@@ -27,6 +27,7 @@ from . import huff_post
 from . import jigsaw_unintended_bias
 from . import lama
 from . import lince
+from . import olmpics
 from . import piaf
 from . import race
 from . import schema_guided_dstc8
@@ -211,6 +212,14 @@ TASK_REGISTRY = {
     "blimp_wh_vs_that_no_gap_long_distance": blimp.BlimpWhVsThatNoGapLongDistance,
     "blimp_wh_vs_that_with_gap": blimp.BlimpWhVsThatWithGap,
     "blimp_wh_vs_that_with_gap_long_distance": blimp.BlimpWhVsThatWithGapLongDistance,
+    "blimp_from_file": blimp.BlimpFromFile,
+    # oLMpics
+    "olmpics_age_comparison": olmpics.OlmpicsAgeComparison,
+    "olmpics_always_never": olmpics.OlmpicsAlwaysNever,
+    "olmpics_multihop_composition": olmpics.OlmpicsMultihopComposition,
+    "olmpics_object_comparison": olmpics.OlmpicsObjectComparison,
+    "olmpics_property_conjunction": olmpics.OlmpicsPropertyConjunction,
+    "olmpics_taxonomy_conjunction": olmpics.OlmpicsTaxonomyConjunction,
     # TyDi QA
     "tydiqa_primary": tydiqa.TyDiQAPrimaryClassification,
     "tydiqa_secondary": tydiqa.TyDiQAGoldPGeneration,
@@ -238,7 +247,7 @@ def list_tasks() -> List[str]:
     return sorted(list(TASK_REGISTRY))
 
 
-def get_task(task_name: str, template_name: str, **task_kwargs) -> Task:
+def get_task(task_name: str, template_name: Optional[str] = None, **task_kwargs) -> Task:
     """Returns a task from the registry and instantiates it with the `promptsource`
     template specified by `template_name`.
 
@@ -252,13 +261,21 @@ def get_task(task_name: str, template_name: str, **task_kwargs) -> Task:
     Returns:
         A task instance with formatting specified by `template_name`.
     """
+    if ":" in task_name:
+        task_str, file_path = task_name.split(":")
+        task_name = task_str
+        task_kwargs.update({"file_path": file_path})
     task_class = _get_task_from_registry(task_name)
+    
+    if template_name is None:
+        return task_class(**task_kwargs)
+
     template = get_templates(task_name)[template_name]
     return task_class(prompt_template=template, **task_kwargs)
 
 
 def get_task_list(
-    task_name: str, template_names: List[str], **task_kwargs
+    task_name: str, template_names: Optional[List[str]] = None, **task_kwargs
 ) -> List[Task]:
     """Returns a list of the same task but with multiple prompt templates.
 
@@ -272,7 +289,9 @@ def get_task_list(
     Returns:
         A list of tasks with the same name but different prompt templates.
     """
-    assert template_names, "Must specify at least one template name"
+    # assert template_names, "Must specify at least one template name"
+    if template_names is None:
+        return [get_task(task_name, None, **task_kwargs)]
     template_names = sorted(set(template_names))
     return [get_task(task_name, t, **task_kwargs) for t in template_names]
 
