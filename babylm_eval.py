@@ -60,16 +60,16 @@ if __name__ == "__main__":
             template = None
             task_title = task
             filename = task.split("olmpics_")[1]
-            task = f"{task}:../filter-data/olmpics_filtered/{filename}"
+            task = f"{task}:filter-data/olmpics_filtered/{filename}"
         elif task in TASKS["comps"]:
             template = None
             task_title = task
             filename = task.split("comps_")[1]
-            task = f"{task}:../filter-data/comps_filtered/{filename}.train"
+            task = f"{task}:filter-data/comps_filtered/{filename}.train"
         else:
             template = lm_eval.list_templates(task)[0]
             task_title = task
-            task = f"{task}:../filter-data/glue_filtered/{task}"
+            task = f"{task}:filter-data/glue_filtered/{task}"
         accuracies[task_title] = accuracy_on_task(task, eval_model, template,
                     args.num_fewshot)
         print(f"{task_title}:\t{accuracies[task_title] * 100:.2f}%")

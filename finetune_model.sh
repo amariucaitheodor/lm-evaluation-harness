@@ -26,11 +26,12 @@ else
     OUT_DIR=$TASK_NAME
 fi
 
-CUDA_VISIBLE_DEVICES=`free-gpu` python finetune_classification.py \
+#CUDA_VISIBLE_DEVICES=`free-gpu` python finetune_classification.py \
+python finetune_classification.py \
   --model_name_or_path $MODEL_PATH \
   --output_dir $MODEL_PATH/finetune/$OUT_DIR/ \
-  --train_file ../filter-data/glue_filtered/$TASK_NAME.train.json \
-  --validation_file ../filter-data/glue_filtered/$TASK_NAME.$VALID_NAME.json \
+  --train_file filter-data/glue_filtered/$TASK_NAME.train.json \
+  --validation_file filter-data/glue_filtered/$TASK_NAME.$VALID_NAME.json \
   --do_train \
   --do_eval \
   --use_fast_tokenizer False \
