@@ -55,7 +55,7 @@ if __name__ == "__main__":
         if task in TASKS["blimp"]:
             template = "null_prompt"
             task_title = task.split(".json")[0]
-            task = f"blimp_from_file:../filter-data/blimp_filtered/{task}"
+            task = f"blimp_from_file:filter-data/blimp_filtered/{task}"
         elif task in TASKS["olmpics"]:
             template = None
             task_title = task
