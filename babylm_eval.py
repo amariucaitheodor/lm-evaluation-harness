@@ -1,17 +1,26 @@
 import argparse
 import lm_eval
+import os
 
 TASKS = {
-    "blimp": ["blimp_determiner_noun_agreement_1",
-             "blimp_regular_plural_subject_verb_agreement_1",
-             "blimp_wh_island",
-             "blimp_passive_1",
-             "blimp_npi_present_1"],
-    "glue":  ["cola", "sst", "mrpc", "qqp", "mnli", "mnli_mismatched", "qnli", "rte", "boolq", "multirc", "wsc"]
+    # "blimp": ["blimp_determiner_noun_agreement_1",
+    #          "blimp_regular_plural_subject_verb_agreement_1",
+    #          "blimp_wh_island",
+    #          "blimp_passive_1",
+    #          "blimp_npi_present_1"],
+    "glue":  ["cola", "sst", "mrpc", "qqp", "mnli", "mnli_mismatched", "qnli", "rte", "boolq",
+              "multirc", "wsc"],
+    "blimp": ["anaphor_agreement.json", "argument_structure.json", "binding.json",
+              "control_raising.json", "determiner_noun_agreement.json", "ellipsis.json",
+              "filler_gap.json", "irregular_forms.json", "island_effects.json",
+              "npi_licensing.json", "quantifiers.json", "subject_verb_agreement.json"],
+    "olmpics": ["olmpics_age_comparison", "olmpics_always_never", "olmpics_multihop_composition",
+                "olmpics_object_comparison", "olmpics_property_conjunction", "olmpics_taxonomy_conjunction"],
+    "comps": ["comps_base", "comps_wugs"]
 }
 
-def accuracy_on_task(task_name, eval_model, template_names, num_fewshot):
-    eval_task = lm_eval.get_task_list(task_name, template_names=template_names)
+def accuracy_on_task(task_name, eval_model, template_name, num_fewshot):
+    eval_task = lm_eval.get_task_list(task_name, template_names=[template_name])
     results = lm_eval.evaluate(model=eval_model, tasks=eval_task, seed=12, num_fewshot=num_fewshot)
     accuracy = results['results'][0]['acc']
     return accuracy
@@ -22,7 +31,7 @@ if __name__ == "__main__":
                         help="Path to huggingface model and tokenizer.")
     parser.add_argument("model_type", type=str, choices=["decoder only", "decoder", "encoder only", "encoder", "encoder-decoder",],
                         help="Language model architecture.")
-    parser.add_argument("--tasks", "-t", type=str, choices=["blimp", "glue", "all"], default="blimp",
+    parser.add_argument("--tasks", "-t", type=str, choices=["blimp", "comps", "glue", "olmpics", "all"], default="blimp",
                         help="Tasks on which we evaluate.")
     parser.add_argument("--num_fewshot", "-n", type=int, default=0,
                         help="Number of few-shot examples to show the model for each test example.")
@@ -43,14 +52,28 @@ if __name__ == "__main__":
 
     accuracies = {}
     for task in tasks:
-        if task.startswith("blimp"):
+        if task in TASKS["blimp"]:
             template = "null_prompt"
+            task_title = task.split(".json")[0]
+            task = f"blimp_from_file:../filter-data/blimp_filtered/{task}"
+        elif task in TASKS["olmpics"]:
+            template = None
+            task_title = task
+            filename = task.split("olmpics_")[1]
+            task = f"{task}:../filter-data/olmpics_filtered/{filename}"
+        elif task in TASKS["comps"]:
+            template = None
+            task_title = task
+            filename = task.split("comps_")[1]
+            task = f"{task}:../filter-data/comps_filtered/{filename}.train"
         else:
             template = lm_eval.list_templates(task)[0]
-        accuracies[task] = accuracy_on_task(task, eval_model, [template],
+            task_title = task
+            task = f"{task}:../filter-data/glue_filtered/{task}"
+        accuracies[task_title] = accuracy_on_task(task, eval_model, template,
                     args.num_fewshot)
-        print(f"{task}:\t{accuracies[task] * 100:.2f}%")
+        print(f"{task_title}:\t{accuracies[task_title] * 100:.2f}%")
 
     print("\nScores:")
-    for task in tasks:
+    for task in accuracies.keys():
         print(f"{task}:\t{accuracies[task] * 100:.2f}%")

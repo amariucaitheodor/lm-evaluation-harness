@@ -33,6 +33,7 @@ CUDA_VISIBLE_DEVICES=`free-gpu` python finetune_classification.py \
   --validation_file ../filter-data/glue_filtered/$TASK_NAME.$VALID_NAME.json \
   --do_train \
   --do_eval \
+  --use_fast_tokenizer False \
   --max_seq_length 128 \
   --per_device_train_batch_size $BSZ \
   --learning_rate $LR \

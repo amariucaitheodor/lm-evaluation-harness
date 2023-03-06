@@ -10,6 +10,7 @@ from . import bias_shades
 from . import blimp
 from . import diabla
 from . import cnn_dailymail
+from . import comps
 from . import coqa
 from . import crd3
 from . import crows_pairs_multilingual
@@ -213,6 +214,9 @@ TASK_REGISTRY = {
     "blimp_wh_vs_that_with_gap": blimp.BlimpWhVsThatWithGap,
     "blimp_wh_vs_that_with_gap_long_distance": blimp.BlimpWhVsThatWithGapLongDistance,
     "blimp_from_file": blimp.BlimpFromFile,
+    # COMPS
+    "comps_base": comps.CompsBase,
+    "comps_wugs": comps.CompsWugs,
     # oLMpics
     "olmpics_age_comparison": olmpics.OlmpicsAgeComparison,
     "olmpics_always_never": olmpics.OlmpicsAlwaysNever,
