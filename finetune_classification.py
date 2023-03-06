@@ -22,9 +22,9 @@ import random
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
+import evaluate
 
 import datasets
-import evaluate
 import numpy as np
 from datasets import load_dataset
 from sklearn.metrics import f1_score
@@ -189,6 +189,10 @@ class ModelArguments:
 
     model_name_or_path: str = field(
         metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
+    )
+    freeze_model: bool = field(
+        default=False,
+        metadata={"help": "Whether to freeze the parameters of the base model."}
     )
     config_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
@@ -399,15 +403,37 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
-    model = AutoModelForSequenceClassification.from_pretrained(
-        model_args.model_name_or_path,
-        from_tf=bool(".ckpt" in model_args.model_name_or_path),
-        config=config,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-        ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
-    )
+    try:
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_args.model_name_or_path,
+            from_tf=bool(".ckpt" in model_args.model_name_or_path),
+            config=config,
+            cache_dir=model_args.cache_dir,
+            revision=model_args.model_revision,
+            use_auth_token=True if model_args.use_auth_token else None,
+            ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+        )
+    except ValueError as e:
+        from transformers import T5Config
+        if isinstance(config, T5Config):
+            from transformers_modified.t5 import T5ForSequenceClassification
+            model = T5ForSequenceClassification.from_pretrained(
+                model_args.model_name_or_path,
+                from_tf=bool(".ckpt" in model_args.model_name_or_path),
+                config=config,
+                cache_dir=model_args.cache_dir,
+                revision=model_args.model_revision,
+                use_auth_token=True if model_args.use_auth_token else None,
+                ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+            )
+        else:
+            raise e
+    
+    # Freeze all parameters (including embeddings) except the classifier head
+    if model_args.freeze_model:
+        for name, param in model.named_parameters():
+            if "classifier" not in name and not name.startswith("score"): # classifier layer
+                param.requires_grad = False
 
     # Preprocessing the raw_datasets
     template = None

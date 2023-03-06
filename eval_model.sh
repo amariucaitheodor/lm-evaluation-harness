@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source /home/amueller/miniconda3/bin/activate
-conda activate lm-eval
+# source /home/amueller/miniconda3/bin/activate
+# conda activate lm-eval
 
 model_path=$1
 model_type=$2
