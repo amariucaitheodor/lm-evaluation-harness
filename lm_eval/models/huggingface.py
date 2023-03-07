@@ -226,7 +226,11 @@ class HuggingFaceAutoLM(TokenLM):
             revision=revision + ("/" + subfolder if subfolder is not None else ""),
             use_fast=use_fast,
         )
-        tokenizer.pad_token = tokenizer.eos_token
+        if not tokenizer.eos_token:
+            tokenizer.add_special_tokens({"eos_token": "</s>"})
+        if not tokenizer.pad_token:
+            tokenizer.pad_token = tokenizer.eos_token
+
         return tokenizer
 
     @property
