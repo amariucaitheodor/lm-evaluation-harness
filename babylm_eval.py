@@ -75,12 +75,12 @@ if __name__ == "__main__":
                     args.num_fewshot)
         print(f"{task_title}:\t{accuracies[task_title] * 100:.2f}%")
         # Write scores to file
-        out_path = os.path.join(args.model_path, "zeroshot", task, "eval_results.json")
+        out_path = os.path.join(args.model_path, "zeroshot", task_title, "eval_results.json")
         out_dir = os.path.dirname(out_path)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
         with open(out_path, 'w') as out_file:
-            json.dump({"eval_accuracy": accuracies[task]}, out_file)
+            json.dump({"eval_accuracy": accuracies[task_title]}, out_file)
 
 
     # Print scores
