@@ -11,7 +11,6 @@ dev_requires = (["black<=21.12b0", "coverage<=6.2", "mock>=4.0.3", "pytest",
 colab_requires = (["black<=21.12b0", "coverage<=6.2", "mock>=4.0.3", "pytest"])
 install_requires = [
     "datasets>=2.0.0",
-    "codecarbon",
     "nltk==3.6",
     "openai==0.13.0",
     "pycountry==20.7.3",
@@ -24,7 +23,7 @@ install_requires = [
     "evaluate==0.4.0",
     "tqdm-multiprocess==0.0.11",
     "accelerate@git+https://github.com/huggingface/accelerate@main",
-    "transformers@git+https://github.com/huggingface/transformers@main",
+    "transformers==4.26.1",
 ]
 dependency_links = []
 
