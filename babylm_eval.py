@@ -17,7 +17,7 @@ TASKS = {
               "npi_licensing.json", "quantifiers.json", "subject_verb_agreement.json"],
     "olmpics": ["olmpics_age_comparison", "olmpics_always_never", "olmpics_multihop_composition",
                 "olmpics_object_comparison", "olmpics_property_conjunction", "olmpics_taxonomy_conjunction"],
-    "comps": ["comps_base", "comps_wugs"]
+    "comps": ["comps_base", "comps_wugs"],
 }
 
 def accuracy_on_task(task_name, eval_model, template_name, num_fewshot):
@@ -32,7 +32,8 @@ if __name__ == "__main__":
                         help="Path to huggingface model and tokenizer.")
     parser.add_argument("model_type", type=str, choices=["decoder only", "decoder", "encoder only", "encoder", "encoder-decoder",],
                         help="Language model architecture.")
-    parser.add_argument("--tasks", "-t", type=str, choices=["blimp", "comps", "glue", "olmpics", "all"], default="blimp",
+    parser.add_argument("--tasks", "-t", type=str, choices=["blimp", "comps", "glue",
+                                                            "olmpics", "all"], default="blimp",
                         help="Tasks on which we evaluate.")
     parser.add_argument("--num_fewshot", "-n", type=int, default=0,
                         help="Number of few-shot examples to show the model for each test example.")

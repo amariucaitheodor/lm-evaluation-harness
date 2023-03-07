@@ -33,6 +33,7 @@ from . import piaf
 from . import race
 from . import schema_guided_dstc8
 from . import superglue
+from . import syllogisms
 from . import tydiqa
 from . import wino_bias
 from . import wmt
@@ -217,6 +218,8 @@ TASK_REGISTRY = {
     # COMPS
     "comps_base": comps.CompsBase,
     "comps_wugs": comps.CompsWugs,
+    # Syllogisms
+    "syllogisms_nonsense": syllogisms.SyllogismsNonsense,
     # oLMpics
     "olmpics_age_comparison": olmpics.OlmpicsAgeComparison,
     "olmpics_always_never": olmpics.OlmpicsAlwaysNever,
