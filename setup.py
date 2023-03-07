@@ -6,7 +6,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 
-dev_requires = (["black<=21.12b0", "coverage<=6.2", "mock>=4.0.3", "pytest"],)
+dev_requires = (["black<=21.12b0", "coverage<=6.2", "mock>=4.0.3", "pytest",
+                 "promptsource@git+https://github.com/bigscience-workshop/promptsource@eval-hackathon"],)
+colab_requires = (["black<=21.12b0", "coverage<=6.2", "mock>=4.0.3", "pytest"])
 install_requires = [
     "datasets>=2.0.0",
     "codecarbon",
@@ -56,9 +58,9 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=install_requires,
     dependency_links=dependency_links,
-    extras_require={"dev": dev_requires},
+    extras_require={"dev": dev_requires, "colab": colab_requires},
     cmdclass={"install": PostInstall},
 )
