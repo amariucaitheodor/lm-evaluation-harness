@@ -1,21 +1,22 @@
-# `lm-evaluation-harness` + `promptsource`
+# BabyLM Evaluation
 
-![](https://github.com/EleutherAI/lm-evaluation-harness/workflows/Build/badge.svg)
-[![codecov](https://codecov.io/gh/EleutherAI/lm-evaluation-harness/branch/master/graph/badge.svg?token=JSG3O2427J)](https://codecov.io/gh/EleutherAI/lm-evaluation-harness)
+This is the evaluation pipeline for the BabyLM Challenge.
+
+![BabyLM Challenge](assets/babylm.png)
 
 ## Overview
 
-This project provides the backend for the BabyLM Challenge's evaluation pipeline. This is based on the `bigscience-workshop` branch of the `lm-evaluation-harness` repository, originally from EleutherAI.
+This code provides the backend for the BabyLM Challenge's evaluation pipeline. 
 
-The BLiMP prompts are provided via `promptsource`, while the COMPS and GLUE prompts are implemented by the BabyLM organizing committee.
+We provide support for zero-shot evaluations on BLiMP, as well as scripts for fine-tuning HuggingFace-based models on GLUE tasks.
+
+We also provide a [Colab demo](https://colab.research.google.com/drive/1HX2D3wztO81tKcqCeV_ecRcEUseBVuTc?usp=sharing) of the evaluation pipeline as a demonstration of how to use the code.
 
 If you have questions about or suggestions for this code, please contact Aaron Mueller. We also welcome pull requests!
 
-We also provide a [Colab version](https://colab.research.google.com/drive/1HX2D3wztO81tKcqCeV_ecRcEUseBVuTc?usp=sharing) of the evaluation pipeline as a demonstration.
-
 ## Installation
 
-Assuming you're using a GPU enabled for CUDA 11.3:
+This code assumes you have access using a GPU enabled for CUDA 11.3. Other CUDA versions should work as long as the `torch` and `transformers` versions are sufficiently up-to-date.
 
 ```bash
 git clone https://github.com/bigscience-workshop/lm-evaluation-harness
@@ -44,4 +45,4 @@ To evaluate a model on tasks that require fine-tuning, like the (Super)GLUE task
 ./finetune_all_tasks.sh 'path/to/model_and_tokenizer'
 ```
 
-This script contains strong defaults that should work for a variety of model sizes. You may adjust these hyperparameters as you wish, though we ask that you submit the best hyperparmeter settings in a README file if you don't use the defaults.
+This script contains strong hyperparameter defaults that should work for a variety of model sizes. You may adjust these hyperparameters as you wish, though we ask that you submit the best hyperparmeter settings in a README file if you don't use the defaults.

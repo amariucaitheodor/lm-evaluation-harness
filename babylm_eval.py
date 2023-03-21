@@ -4,20 +4,11 @@ import os
 import json
 
 TASKS = {
-    # "blimp": ["blimp_determiner_noun_agreement_1",
-    #          "blimp_regular_plural_subject_verb_agreement_1",
-    #          "blimp_wh_island",
-    #          "blimp_passive_1",
-    #          "blimp_npi_present_1"],
-    "glue":  ["cola", "sst", "mrpc", "qqp", "mnli", "mnli_mismatched", "qnli", "rte", "boolq",
-              "multirc", "wsc"],
+    "glue": ["mnli_mismatched", "qnli", "rte", "boolq", "multirc", "wsc"],
     "blimp": ["anaphor_agreement.json", "argument_structure.json", "binding.json",
               "control_raising.json", "determiner_noun_agreement.json", "ellipsis.json",
               "filler_gap.json", "irregular_forms.json", "island_effects.json",
               "npi_licensing.json", "quantifiers.json", "subject_verb_agreement.json"],
-    "olmpics": ["olmpics_age_comparison", "olmpics_always_never", "olmpics_multihop_composition",
-                "olmpics_object_comparison", "olmpics_property_conjunction", "olmpics_taxonomy_conjunction"],
-    "comps": ["comps_base", "comps_wugs"],
 }
 
 def accuracy_on_task(task_name, eval_model, template_name, num_fewshot):
@@ -53,6 +44,7 @@ if __name__ == "__main__":
         tasks = TASKS[args.tasks]
 
     accuracies = {}
+    # Iterate through tasks, get accuracies
     for task in tasks:
         if task in TASKS["blimp"]:
             template = "null_prompt"
@@ -71,7 +63,10 @@ if __name__ == "__main__":
         else:
             template = lm_eval.list_templates(task)[0]
             task_title = task
-            task = f"{task}:filter-data/glue_filtered/{task}"
+            if task_title == "mnli_mismatched":
+                task = f"{task_title}:filter-data/glue_filtered/mnli"
+            else:
+                task = f"{task}:filter-data/glue_filtered/{task}"
         accuracies[task_title] = accuracy_on_task(task, eval_model, template,
                     args.num_fewshot)
         print(f"{task_title}:\t{accuracies[task_title] * 100:.2f}%")
