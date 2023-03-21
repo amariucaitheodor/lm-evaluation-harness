@@ -4,7 +4,8 @@ import os
 import json
 
 TASKS = {
-    "glue": ["mnli_mismatched", "qnli", "rte", "boolq", "multirc", "wsc"],
+    "glue":  ["cola", "sst", "mrpc", "qqp", "mnli", "mnli_mismatched", "qnli", "rte",
+              "boolq", "multirc", "wsc"],
     "blimp": ["anaphor_agreement.json", "argument_structure.json", "binding.json",
               "control_raising.json", "determiner_noun_agreement.json", "ellipsis.json",
               "filler_gap.json", "irregular_forms.json", "island_effects.json",
@@ -23,8 +24,7 @@ if __name__ == "__main__":
                         help="Path to huggingface model and tokenizer.")
     parser.add_argument("model_type", type=str, choices=["decoder only", "decoder", "encoder only", "encoder", "encoder-decoder",],
                         help="Language model architecture.")
-    parser.add_argument("--tasks", "-t", type=str, choices=["blimp", "comps", "glue",
-                                                            "olmpics", "all"], default="blimp",
+    parser.add_argument("--tasks", "-t", type=str, choices=["blimp", "glue"], default="blimp",
                         help="Tasks on which we evaluate.")
     parser.add_argument("--num_fewshot", "-n", type=int, default=0,
                         help="Number of few-shot examples to show the model for each test example.")
@@ -50,23 +50,15 @@ if __name__ == "__main__":
             template = "null_prompt"
             task_title = task.split(".json")[0]
             task = f"blimp_from_file:filter-data/blimp_filtered/{task}"
-        elif task in TASKS["olmpics"]:
-            template = None
-            task_title = task
-            filename = task.split("olmpics_")[1]
-            task = f"{task}:filter-data/olmpics_filtered/{filename}"
-        elif task in TASKS["comps"]:
-            template = None
-            task_title = task
-            filename = task.split("comps_")[1]
-            task = f"{task}:filter-data/comps_filtered/{filename}.train"
-        else:
+        elif task in TASKS["glue"]:
             template = lm_eval.list_templates(task)[0]
             task_title = task
             if task_title == "mnli_mismatched":
                 task = f"{task_title}:filter-data/glue_filtered/mnli"
             else:
                 task = f"{task}:filter-data/glue_filtered/{task}"
+        else:
+            raise ValueError("Unrecognized task!")
         accuracies[task_title] = accuracy_on_task(task, eval_model, template,
                     args.num_fewshot)
         print(f"{task_title}:\t{accuracies[task_title] * 100:.2f}%")

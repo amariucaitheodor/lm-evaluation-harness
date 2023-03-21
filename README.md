@@ -1,7 +1,4 @@
-# BabyLM Evaluation
-
-This is the evaluation pipeline for the BabyLM Challenge.
-
+# BabyLM Evaluation Pipeline
 ![BabyLM Challenge](assets/babylm.png)
 
 ## Overview
@@ -25,24 +22,30 @@ pip install -e ".[dev]"
 pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 promptsource==0.2.3 --extra-index-url https://download.pytorch.org/whl/cu113
 ```
 
-## CLI Usage 🖥️
-### Zero-shot
+## Usage
+### Zero-shot Evaluation
 To evaluate a model on zero-shot tasks like BLiMP:
 
 ```bash
-python babylm_eval.py \
-    'path/to/model_and_tokenizer' \
-    'model_type' \
-    --tasks 'blimp' \
+python babylm_eval.py 'path/to/model_and_tokenizer' 'model_type'
 ```
 
 Where `model_type` is one of "encoder", "decoder" or "encoder-decoder".
 
 ### Fine-tuning
-To evaluate a model on tasks that require fine-tuning, like the (Super)GLUE tasks:
+To fine-tune and evaluate a model on tasks that require fine-tuning, like the (Super)GLUE tasks:
 
 ```bash
 ./finetune_all_tasks.sh 'path/to/model_and_tokenizer'
 ```
 
 This script contains strong hyperparameter defaults that should work for a variety of model sizes. You may adjust these hyperparameters as you wish, though we ask that you submit the best hyperparmeter settings in a README file if you don't use the defaults.
+
+## Uploading Results
+We provide a shell script that will collect your results into a single file:
+
+```bash
+./collect_results.sh path/to/model_and_tokenizer
+```
+
+We will ask you to share your results, model, and tokenizer. We will evaluate on held-out tasks (TBA) as part of the final evaluation.

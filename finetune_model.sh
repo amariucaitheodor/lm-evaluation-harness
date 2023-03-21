@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# source /home/amueller/miniconda3/bin/activate
-# conda activate lm-eval
-
 MODEL_PATH=$1
 TASK_NAME=$2
 LR=${3:-5e-5}           # default: 5e-5
