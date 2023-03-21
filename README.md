@@ -22,6 +22,11 @@ pip install -e ".[dev]"
 pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 promptsource==0.2.3 --extra-index-url https://download.pytorch.org/whl/cu113
 ```
 
+### Data
+We provide versions of BLiMP and GLUE which have been filtered according to the vocabulary of the `strict-small` dataset. We filter for examples where each word has appeared in our training set at least twice.
+
+Unzip the dataset into the root directory of this repository: `unzip filter_data.zip`.
+
 ## Usage
 ### Zero-shot Evaluation
 To evaluate a model on zero-shot tasks like BLiMP:
