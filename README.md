@@ -44,7 +44,18 @@ To fine-tune and evaluate a model on tasks that require fine-tuning, like the (S
 ./finetune_all_tasks.sh 'path/to/model_and_tokenizer'
 ```
 
-This script contains strong hyperparameter defaults that should work for a variety of model sizes. You may adjust these hyperparameters as you wish, though we ask that you submit the best hyperparmeter settings in a README file if you don't use the defaults.
+#### Hyperparameters
+This script contains hyperparameter defaults that should work for a variety of model sizes, architectures, and tasks. You may adjust these hyperparameters as you wish, though we ask that you submit the best hyperparmeter settings in a README file if you don't use the defaults.
+
+Here are the defaults that we use:
+| Hyperparameter | Value |
+| -------------- | ----- |
+| Initial learning rate | 5e-5 |
+| Batch size | 64 |
+| Maximum epochs | 10 |
+| Evaluate every (steps) | 200 |
+| Patience | 10 |
+| Random seed | 12 |
 
 ## Uploading Results
 We provide a shell script that will collect your results into a single file:
@@ -54,3 +65,58 @@ We provide a shell script that will collect your results into a single file:
 ```
 
 We will ask you to share your results, model, and tokenizer. We will evaluate on held-out tasks (TBA) as part of the final evaluation.
+
+## Baselines
+We provide a series of baseline models that we train on our strict or strict-small datasets. These are [hosted on HuggingFace](https://huggingface.co/babylm).
+
+We simply take the hyperparameters used to pre-train the original versions of these models, and train them on our strict or strict-small datasets. While we do reduce the context length and, in some cases, the batch size, these are otherwise minimally modified.
+
+These are naïve baselines that are meant to provide a starting point for investigation. We look forward to seeing how you will improve upon these!
+
+## Citation
+If you use the datasets or code from this repository, please cite the BabyLM Call for Papers:
+
+```
+@article{warstadt2023papers,
+      title     = {Call for Papers -- The BabyLM Challenge: Sample-efficient pretraining on a developmentally plausible corpus}, 
+      author    = {Warstadt, Alex and
+                   Choshen, Leshem and
+                   Mueller, Aaron and
+                   Williams, Adina and
+                   Wilcox, Ethan and
+                   Zhuang, Chengxu},
+      year      = {2023},
+      journal   = {Computing Research Repository},
+      volume    = {arXiv:2301.11796}
+}
+```
+
+Please also cite the lm-eval-harness paper:
+```
+@software{eval-harness,
+  author       = {Gao, Leo and
+                  Tow, Jonathan and
+                  Biderman, Stella and
+                  Black, Sid and
+                  DiPofi, Anthony and
+                  Foster, Charles and
+                  Golding, Laurence and
+                  Hsu, Jeffrey and
+                  McDonell, Kyle and
+                  Muennighoff, Niklas and
+                  Phang, Jason and
+                  Reynolds, Laria and
+                  Tang, Eric and
+                  Thite, Anish and
+                  Wang, Ben and
+                  Wang, Kevin and
+                  Zou, Andy},
+  title        = {A framework for few-shot language model evaluation},
+  month        = sep,
+  year         = 2021,
+  publisher    = {Zenodo},
+  version      = {v0.0.1},
+  doi          = {10.5281/zenodo.5371628},
+  url          = {https://doi.org/10.5281/zenodo.5371628}
+}
+```
