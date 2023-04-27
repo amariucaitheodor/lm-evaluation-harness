@@ -23,7 +23,7 @@ install_requires = [
     "evaluate==0.4.0",
     "tqdm-multiprocess==0.0.11",
     "accelerate@git+https://github.com/huggingface/accelerate@main",
-    "transformers==4.26.1",
+    # "transformers==4.26.1",
 ]
 dependency_links = []
 
