@@ -19,7 +19,7 @@ install_requires = [
     "sacrebleu==1.5.0",
     "scikit-learn>=0.24.1",
     "sqlitedict==1.6.0",
-    "torch==1.11.0",
+    # "torch==1.11.0",
     "evaluate==0.4.0",
     "tqdm-multiprocess==0.0.11",
     "accelerate@git+https://github.com/huggingface/accelerate@main",
