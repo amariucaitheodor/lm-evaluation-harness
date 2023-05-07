@@ -16,7 +16,7 @@ from lm_eval.api.task import Task
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
