@@ -184,7 +184,7 @@ def evaluate(
         pbar_limit = len(task_docs) if not limit else np.minimum(limit, len(task_docs))
 
         for doc_id, doc in enumerate(
-            tqdm(itertools.islice(task_docs, 0, limit), total=pbar_limit)
+            tqdm(itertools.islice(task_docs, 0, limit), total=pbar_limit, disable=True)
         ):
             docs[(task_template_key, doc_id)] = doc
             ctx, fewshotex_logging_info = task.fewshot_context(
