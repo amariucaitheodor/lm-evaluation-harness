@@ -130,7 +130,7 @@ class OpenAICompletionsLM(TokenLM):
     def _loglikelihood_tokens(
         self,
         requests: List[Union[Tuple[str, str], TokenSequence, TokenSequence]],
-        disable_tqdm: Optional[bool] = False,
+        disable_tqdm: Optional[bool] = True,
     ) -> List[Tuple[float, bool]]:
         def _collate(x):
             # this doesn't efficiently handle last-token differences yet, but those are kinda annoying because
